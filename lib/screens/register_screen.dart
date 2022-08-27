@@ -55,10 +55,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       final User? user = FirebaseAuth.instance.currentUser!;
       final _uid = user!.uid;
+
       final fpoLogosRef = await FirebaseStorage.instance
           .ref()
           .child("fpoLogos")
-          .child("$_uid.jpg");
+          .child(
+              "${_fpoShortNameController.text.trim().toLowerCase().replaceAll(' ', '')}.jpg");
       await fpoLogosRef.putFile(imageFile!);
       logoURL = await fpoLogosRef.getDownloadURL();
       FirebaseFirestore.instance.collection("fpos").doc(_uid).set({
@@ -76,7 +78,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'createdAt': Timestamp.now(),
       }).whenComplete(() async {
         final snackBar = await SnackBar(
-          margin: EdgeInsets.all(8),
           content: Text("Account created successfully"),
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -225,9 +226,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: Padding(
                             padding: const EdgeInsets.all(8),
                             child: Center(
-                              child: CircleAvatar(
-                                backgroundColor: accentColor,
-                                radius: 60,
+                              child: Container(
+                                width: 130,
+                                height: 130,
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: accentColor,
+                                  borderRadius: BorderRadius.circular(100),
+                                ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(100),
                                   child: Column(

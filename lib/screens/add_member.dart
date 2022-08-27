@@ -9,33 +9,53 @@ class AddMember extends StatefulWidget {
 }
 
 class _AddMemberState extends State<AddMember> {
-  final addMemberFormKey = GlobalKey<FormState>();
-  final fullNameController = TextEditingController();
-  final surnameController = TextEditingController();
-  String? gender;
-  String? maritalStatus;
-  final fatherOrHusbandNameController = TextEditingController();
-  final aadharController = TextEditingController();
-  final mobileNumberController = TextEditingController();
-  final dobController = TextEditingController();
-  final landHoldingController = TextEditingController();
-  String country = "";
-  String state = "";
-  String district = "";
-  String mandal = "";
-  String revenueVillage = "";
-  String habitation = "";
-  final joiningDateController = TextEditingController();
-  final membershipController = TextEditingController();
-  final shareCapitalController = TextEditingController();
-  bool registerFormLoading = false;
+  final _addMemberFormKey = GlobalKey<FormState>();
+  File? _imageFile;
+  String? _memImgUrl;
+  final _fullNameController = TextEditingController();
+  final _surnameController = TextEditingController();
+  String? _gender;
+  String? _maritalStatus;
+  final _fatherOrHusbandNameController = TextEditingController();
+  final _aadharController = TextEditingController();
+  final _mobileNumberController = TextEditingController();
+  final _dobController = TextEditingController();
+  final _landHoldingController = TextEditingController();
+  String? _country = "";
+  String? _state = "";
+  String? _district = "";
+  String? _mandal = "";
+  String? _revenueVillage = "";
+  String? _habitation = "";
+  final _joiningDateController = TextEditingController();
+  final _membershipController = TextEditingController();
+  final _shareCapitalController = TextEditingController();
+
+  bool _registerFormLoading = false;
 
   final maritalStatusTitle = [
     "S/o",
     "W/o",
   ];
 
+  String fatherOrHusbandNameHintText() {
+    if (_gender == "Female" && _maritalStatus == "Married") {
+      return "Husband name";
+    }
+    return "Father name";
+  }
+
+  String maritalTitle() {
+    if (fatherOrHusbandNameHintText() == "Father name" && _gender == "Female") {
+      return "D/o";
+    } else if (fatherOrHusbandNameHintText() == "Husband name") {
+      return "W/o";
+    }
+    return "S/o";
+  }
+
   final List<String> _countries = [];
+
   countryDependentDropdown() {
     countries.forEach((key, value) {
       _countries.add(key);
@@ -43,59 +63,241 @@ class _AddMemberState extends State<AddMember> {
   }
 
   List<String> _states = [];
+
   stateDependentDropdown(countryShortName) {
     states.forEach((key, value) {
       if (countryShortName == value) {
         _states.add(key);
       }
     });
-    state = _states[0];
+
+    _state = _states[0];
   }
 
   List<String> _districts = [];
+
   districtDependentDropdown(stateName) {
     districts.forEach((key, value) {
       if (stateName == value) {
         _districts.add(key);
       }
     });
-    district = _districts[0];
+    _district = _districts[0];
   }
 
   List<String> _mandals = [];
+
   mandalDependentDropdown(districtName) {
     mandals.forEach((key, value) {
       if (districtName == value) {
         _mandals.add(key);
       }
     });
-    mandal = _mandals[0];
+    _mandal = _mandals[0];
   }
 
   List<String> _revenueVillages = [];
+
   revenueVillagesDependentDropdown(mandalName) {
     revenueVillages.forEach((key, value) {
       if (mandalName == value) {
         _revenueVillages.add(key);
       }
     });
-    revenueVillage = _revenueVillages[0];
+    _revenueVillage = _revenueVillages[0];
   }
 
   List<String> _habitations = [];
+
   habitationDependentDropdown(revenueVillageName) {
     habitations.forEach((key, value) {
       if (revenueVillageName == value) {
         _habitations.add(key);
       }
     });
-    habitation = _habitations[0];
+    _habitation = _habitations[0];
+  }
+
+  void _getFromCamera() async {
+    XFile? pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+    );
+    _cropImage(pickedFile!.path);
+    Navigator.pop(context);
+  }
+
+  void _getFromGallery() async {
+    XFile? pickedFile = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+    );
+    _cropImage(pickedFile!.path);
+    Navigator.pop(context);
+  }
+
+  void _cropImage(filePath) async {
+    CroppedFile? croppedImage = await ImageCropper().cropImage(
+      sourcePath: filePath,
+      maxHeight: 1080,
+      maxWidth: 1080,
+    );
+    if (croppedImage != null) {
+      setState(() {
+        _imageFile = File(croppedImage.path);
+      });
+    }
+  }
+
+  Future<String?> _createAccount() async {
+    if (_imageFile == null) {
+      return 'Please upload member photo';
+    } else if (_fullNameController.text.isEmpty) {
+      return 'Please enter member full name';
+    } else if (_surnameController.text.isEmpty) {
+      return 'Please enter member surname name';
+    } else if (_gender == null) {
+      return 'Please select member gender';
+    } else if (_maritalStatus == null) {
+      return 'Please select member marital status';
+    } else if (_fatherOrHusbandNameController.text.isEmpty) {
+      return 'Please enter father or husband name';
+    } else if (_aadharController.text.isEmpty) {
+      return 'Please enter member aadhar number';
+    } else if (_mobileNumberController.text.isEmpty) {
+      return 'Please enter member mobile number';
+    } else if (_dobController.text.isEmpty) {
+      return 'Please select member date of birth';
+    } else if (_landHoldingController.text.isEmpty) {
+      return 'Please enter land holding in acres';
+    } else if (_country == null) {
+      return 'Please select member country';
+    } else if (_state == null) {
+      return 'Please select member state';
+    } else if (_district == null) {
+      return 'Please select member district';
+    } else if (_mandal == null) {
+      return 'Please select member mandal';
+    } else if (_revenueVillage == null) {
+      return 'Please select member revenue village';
+    } else if (_habitation == null) {
+      return 'Please select member habitation';
+    } else if (_joiningDateController.text.isEmpty) {
+      return 'Please select member joining date';
+    } else if (_membershipController.text.isEmpty) {
+      return 'Please enter membership amount in rupees';
+    } else if (_shareCapitalController.text.isEmpty) {
+      return 'Please enter share capital amount in rupees';
+    }
+
+    try {
+      final document = await FirebaseFirestore.instance
+          .collection('fpos')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("members")
+          .doc();
+
+      final uid = document.id;
+      final memberImgRef = await FirebaseStorage.instance
+          .ref()
+          .child("memberImages")
+          .child("$uid.jpg");
+      await memberImgRef.putFile(_imageFile!);
+      _memImgUrl = await memberImgRef.getDownloadURL();
+      await FirebaseFirestore.instance
+          .collection('fpos')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection("members")
+          .doc(uid)
+          .set({
+        'memberId': uid,
+        'memImgUrl': _memImgUrl,
+        'fullName': _fullNameController.text.trim(),
+        'surname': _surnameController.text.trim(),
+        'gender': _gender,
+        'maritalStatus': _maritalStatus,
+        'maritalTitle': maritalTitle(),
+        'fatherOrHusbandName': _fatherOrHusbandNameController.text.trim(),
+        'aadhar': int.parse(_aadharController.text.trim()),
+        'mobile': int.parse(_mobileNumberController.text.trim()),
+        'dob': _dobController.text.trim(),
+        'landHolding': double.parse(_landHoldingController.text.trim()),
+        'country': _country,
+        'state': _state,
+        'district': _district,
+        'mandal': _mandal,
+        'revenueVillage': _revenueVillage,
+        'habitation': _habitation,
+        'joiningDate': _joiningDateController.text.trim(),
+        'membership': int.parse(_membershipController.text.trim()),
+        'shareCapital': int.parse(_shareCapitalController.text.trim()),
+        'createdAt': Timestamp.now(),
+      }).whenComplete(() async {
+        final snackBar = await SnackBar(
+          content: Text("Member added successfully"),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      }).catchError((error) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text("You are not able to create account due to $error"),
+            );
+          },
+        );
+      });
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        return 'The password provided is too weak';
+      } else if (e.code == 'email-already-in-use') {
+        return 'The account already exists for that email';
+      } else if (e.code == 'invalid-email') {
+        return 'Email address is invalid';
+      }
+      return e.message;
+    } catch (e) {
+      return e.toString();
+    }
+    return null;
+  }
+
+  void _submitForm() async {
+    setState(() {
+      _registerFormLoading = true;
+    });
+    String? _createAccountFeedback = await _createAccount();
+    if (_createAccountFeedback != null) {
+      alertDialogBuilder(context, _createAccountFeedback);
+      setState(() {
+        _registerFormLoading = false;
+      });
+    } else {
+      const AlertDialog(
+        title: Text("Alert"),
+        content: Text("Your account not created."),
+      );
+      Navigator.canPop(context) ? Navigator.pop(context) : null;
+    }
   }
 
   @override
   void initState() {
     countryDependentDropdown();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _surnameController.dispose();
+    _fatherOrHusbandNameController.dispose();
+    _aadharController.dispose();
+    _mobileNumberController.dispose();
+    _dobController.dispose();
+    _landHoldingController.dispose();
+    _joiningDateController.dispose();
+    _membershipController.dispose();
+    _shareCapitalController.dispose();
+    super.dispose();
   }
 
   @override
@@ -113,15 +315,97 @@ class _AddMemberState extends State<AddMember> {
         ),
       ),
       body: Form(
-        key: addMemberFormKey,
+        key: _addMemberFormKey,
         child: ListView(
           physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.all(12),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           children: [
+            GestureDetector(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Center(
+                  child: Container(
+                    width: 130,
+                    height: 130,
+                    padding: EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: accentColor,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _imageFile == null
+                              ? const Icon(
+                            Icons.add_a_photo_outlined,
+                            color: secondaryColor,
+                            size: 40,
+                          )
+                              : Expanded(
+                            child: Image.file(
+                              _imageFile!,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Please choose an option",
+                          style: regularHeading),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          InkWell(
+                            child: Row(
+                              children: const [
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child:
+                                  Icon(Icons.camera, color: secondaryColor),
+                                ),
+                                Text("Camera", style: regularDarkText)
+                              ],
+                            ),
+                            onTap: () {
+                              _getFromCamera();
+                            },
+                          ),
+                          InkWell(
+                            child: Row(
+                              children: const [
+                                Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child:
+                                  Icon(Icons.image, color: secondaryColor),
+                                ),
+                                Text("Gallery", style: regularDarkText)
+                              ],
+                            ),
+                            onTap: () {
+                              _getFromGallery();
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
             CustomFormField(
               obscureText: false,
-              controller: fullNameController,
+              controller: _fullNameController,
               title: "Full name",
               mandatorySymbol: " *",
               hintText: "Enter your full name",
@@ -133,7 +417,7 @@ class _AddMemberState extends State<AddMember> {
               textInputAction: TextInputAction.next,
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -141,7 +425,7 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: surnameController,
+              controller: _surnameController,
               title: "Surname",
               mandatorySymbol: " *",
               hintText: "Enter your surname",
@@ -153,7 +437,7 @@ class _AddMemberState extends State<AddMember> {
               textCapitalization: TextCapitalization.none,
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -170,10 +454,10 @@ class _AddMemberState extends State<AddMember> {
                 Radio(
                   activeColor: primaryColor,
                   value: "Male",
-                  groupValue: gender,
+                  groupValue: _gender,
                   onChanged: (value) {
                     setState(() {
-                      gender = value.toString();
+                      _gender = value.toString();
                     });
                   },
                 ),
@@ -181,10 +465,10 @@ class _AddMemberState extends State<AddMember> {
                 Radio(
                   activeColor: primaryColor,
                   value: "Female",
-                  groupValue: gender,
+                  groupValue: _gender,
                   onChanged: (value) {
                     setState(() {
-                      gender = value.toString();
+                      _gender = value.toString();
                     });
                   },
                 ),
@@ -192,10 +476,10 @@ class _AddMemberState extends State<AddMember> {
                 Radio(
                   activeColor: primaryColor,
                   value: "Others",
-                  groupValue: gender,
+                  groupValue: _gender,
                   onChanged: (value) {
                     setState(() {
-                      gender = value.toString();
+                      _gender = value.toString();
                     });
                   },
                 ),
@@ -213,10 +497,10 @@ class _AddMemberState extends State<AddMember> {
                 Radio(
                   activeColor: primaryColor,
                   value: "Married",
-                  groupValue: maritalStatus,
+                  groupValue: _maritalStatus,
                   onChanged: (value) {
                     setState(() {
-                      maritalStatus = value.toString();
+                      _maritalStatus = value.toString();
                     });
                   },
                 ),
@@ -224,10 +508,10 @@ class _AddMemberState extends State<AddMember> {
                 Radio(
                   activeColor: primaryColor,
                   value: "Unmarried",
-                  groupValue: maritalStatus,
+                  groupValue: _maritalStatus,
                   onChanged: (value) {
                     setState(() {
-                      maritalStatus = value.toString();
+                      _maritalStatus = value.toString();
                     });
                   },
                 ),
@@ -237,12 +521,12 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: fatherOrHusbandNameController,
-              title: (gender == "Female" && maritalStatus == "Married")
+              controller: _fatherOrHusbandNameController,
+              title: (_gender == "Female" && _maritalStatus == "Married")
                   ? "Husband name"
                   : "Father name",
               mandatorySymbol: " *",
-              hintText: (gender == "Female" && maritalStatus == "Married")
+              hintText: (_gender == "Female" && _maritalStatus == "Married")
                   ? "Husband name"
                   : "Father name",
               autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -253,7 +537,7 @@ class _AddMemberState extends State<AddMember> {
               textCapitalization: TextCapitalization.none,
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -261,7 +545,7 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: aadharController,
+              controller: _aadharController,
               title: "Aadhar",
               mandatorySymbol: " *",
               hintText: "Enter your aadhar number",
@@ -282,7 +566,7 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: mobileNumberController,
+              controller: _mobileNumberController,
               title: "Mobile",
               mandatorySymbol: " *",
               hintText: "Enter your mobile number",
@@ -303,7 +587,7 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: dobController,
+              controller: _dobController,
               title: "Date of birth",
               mandatorySymbol: " *",
               icon: const Icon(Icons.calendar_today_outlined),
@@ -323,14 +607,14 @@ class _AddMemberState extends State<AddMember> {
                 );
                 if (pickedDate != null) {
                   setState(() {
-                    dobController.text =
+                    _dobController.text =
                         DateFormat('dd-MM-yyyy').format(pickedDate);
                   });
                 }
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
+                    !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
                     ? "Please select your date of birth"
                     : null;
               },
@@ -338,7 +622,7 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: landHoldingController,
+              controller: _landHoldingController,
               title: "Land holding",
               mandatorySymbol: " *",
               hintText: "Enter your land extent",
@@ -352,7 +636,7 @@ class _AddMemberState extends State<AddMember> {
               counterText: "",
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[1-9]\d*(\.\d+)?$').hasMatch(value))
+                    !RegExp(r'^[1-9]\d*(\.\d+)?$').hasMatch(value))
                     ? "Please enter valid aadhar number"
                     : null;
               },
@@ -366,18 +650,21 @@ class _AddMemberState extends State<AddMember> {
               fillColor: fieldBackgroundColor,
               keyboardType: TextInputType.name,
               textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
+              dropDownContainerWidth: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
                   _states = [];
                   stateDependentDropdown(countries[onSelected]);
-                  country = onSelected;
+                  _country = onSelected;
                 });
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -391,18 +678,21 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               textInputAction: TextInputAction.next,
               fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
+              dropDownContainerWidth: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
                   _districts = [];
                   districtDependentDropdown(onSelected);
-                  state = onSelected;
+                  _state = onSelected;
                 });
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -416,18 +706,21 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               fillColor: fieldBackgroundColor,
               textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
+              dropDownContainerWidth: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
                   _mandals = [];
                   mandalDependentDropdown(onSelected);
-                  state = onSelected;
+                  _state = onSelected;
                 });
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -441,18 +734,21 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               textInputAction: TextInputAction.next,
               fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
+              dropDownContainerWidth: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
                   _revenueVillages = [];
                   revenueVillagesDependentDropdown(onSelected);
-                  mandal = onSelected;
+                  _mandal = onSelected;
                 });
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -466,18 +762,21 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               fillColor: fieldBackgroundColor,
               textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
+              dropDownContainerWidth: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
                   _habitations = [];
                   habitationDependentDropdown(onSelected);
-                  revenueVillage = onSelected;
+                  _revenueVillage = onSelected;
                 });
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -491,16 +790,19 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               textInputAction: TextInputAction.next,
               fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
+              dropDownContainerWidth: MediaQuery
+                  .of(context)
+                  .size
+                  .width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
-                  habitation = onSelected;
+                  _habitation = onSelected;
                 });
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -508,7 +810,7 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: joiningDateController,
+              controller: _joiningDateController,
               title: "Joining date",
               mandatorySymbol: " *",
               icon: const Icon(Icons.calendar_today_outlined),
@@ -528,14 +830,14 @@ class _AddMemberState extends State<AddMember> {
                 );
                 if (pickedDate != null) {
                   setState(() {
-                    joiningDateController.text =
+                    _joiningDateController.text =
                         DateFormat('dd-MM-yyyy').format(pickedDate);
                   });
                 }
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
+                    !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
                     ? "Please select your joining date"
                     : null;
               },
@@ -543,7 +845,7 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: membershipController,
+              controller: _membershipController,
               title: "Membership",
               mandatorySymbol: " *",
               hintText: "Membership",
@@ -564,7 +866,7 @@ class _AddMemberState extends State<AddMember> {
             const SizedBox(height: 8),
             CustomFormField(
               obscureText: false,
-              controller: shareCapitalController,
+              controller: _shareCapitalController,
               title: "Share capital",
               mandatorySymbol: " *",
               hintText: "Share capital",
@@ -578,8 +880,9 @@ class _AddMemberState extends State<AddMember> {
               counterText: "",
               validator: (String? value) {
                 return (value!.isEmpty ||
-                        !RegExp(r'^([0]|10[0]|20[0]|30[0]|40[0]|50[0]|60[0]|70[0]|80[0]|90[0]|1000)$')
-                            .hasMatch(value))
+                    !RegExp(
+                        r'^([0]|10[0]|20[0]|30[0]|40[0]|50[0]|60[0]|70[0]|80[0]|90[0]|1000)$')
+                        .hasMatch(value))
                     ? "Share capital is between 100 to 1000"
                     : null;
               },
@@ -589,12 +892,12 @@ class _AddMemberState extends State<AddMember> {
               buttonText: "Submit",
               outlineButton: false,
               onPressed: () {
-                if (addMemberFormKey.currentState!.validate()) {
-                  const snackBar =
-                      SnackBar(content: Text("Submitted successfully"));
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                }
+                _submitForm();
+                setState(() {
+                  _registerFormLoading = true;
+                });
               },
+              isLoading: _registerFormLoading,
             ),
           ],
         ),

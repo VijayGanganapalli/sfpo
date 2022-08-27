@@ -1,33 +1,35 @@
 import 'package:sfpo/constants/packages.dart';
 
 class CustomMembersCard extends StatelessWidget {
+  final String? memImageUrl;
   final String? fullName;
   final String? surname;
   final Function()? onTap;
   final bool? isProfileImageLoaded;
   final String? fatherOrHusbandName;
   final bool? isMarried;
-  final String? gramaPanchayati;
+  final String? revenueVillage;
   final String? habitaion;
   final num? membership;
   final num? shareCapital;
   final String? gender;
   final String? maritalTitle;
 
-  const CustomMembersCard({
+  CustomMembersCard({
     Key? key,
     this.onTap,
     this.fullName,
     this.surname,
     this.isProfileImageLoaded,
     this.fatherOrHusbandName,
-    this.gramaPanchayati,
+    this.revenueVillage,
     this.habitaion,
     this.membership,
     this.shareCapital,
     this.isMarried,
     this.gender,
     this.maritalTitle,
+    this.memImageUrl,
   }) : super(key: key);
 
   @override
@@ -50,15 +52,14 @@ class CustomMembersCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(right: 8.0),
                 child: CircleAvatar(
                   backgroundColor: avatarBackgroundColor,
                   radius: 30.0,
-                  child: Icon(
-                    Icons.person_rounded,
-                    size: 44,
-                    color: avatarIconColor,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Image.network("$memImageUrl", fit: BoxFit.contain),
                   ),
                 ),
               ),
@@ -75,7 +76,7 @@ class CustomMembersCard extends StatelessWidget {
                     style: regularMembersText,
                   ),
                   Text(
-                    "$gramaPanchayati",
+                    "$revenueVillage",
                     style: regularMembersText,
                   ),
                   Text(

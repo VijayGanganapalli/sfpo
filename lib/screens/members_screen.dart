@@ -9,6 +9,7 @@ class MembersScreen extends StatefulWidget {
 
 class _MembersScreenState extends State<MembersScreen> {
   String? memberId;
+  String memImageUrl = "";
 
   @override
   Widget build(BuildContext context) {
@@ -54,10 +55,11 @@ class _MembersScreenState extends State<MembersScreen> {
                 children: snapshot.data!.docs
                     .map(
                       (document) => CustomMembersCard(
+                        memImageUrl: document['memImgUrl'],
                         fullName: document['fullName'],
                         surname: document['surname'],
                         fatherOrHusbandName: document['fatherOrHusbandName'],
-                        gramaPanchayati: document['gramaPanchayati'],
+                        revenueVillage: document['revenueVillage'],
                         maritalTitle: document['maritalTitle'],
                         habitaion: document['habitation'],
                         membership: document['membership'],

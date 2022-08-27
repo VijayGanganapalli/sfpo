@@ -8,9 +8,9 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int? membersCount;
-  int? maleCount;
-  int? femaleCount;
+  int membersCount = 0;
+  int maleCount = 0;
+  int femaleCount = 0;
 
   final CollectionReference _membersRef = FirebaseFirestore.instance
       .collection("fpos")
