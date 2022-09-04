@@ -1,5 +1,4 @@
 import 'package:sfpo/constants/packages.dart';
-import 'package:sfpo/services/get_members_info.dart';
 
 class MemberDetailsScreen extends StatefulWidget {
   final String memberId;
@@ -31,13 +30,32 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
   int? membership;
   int? shareCapital;
 
+  Future<int> getMemberCount() async {
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('fpos')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('members')
+        .get();
+
+    return snapshot.size;
+  }
+
+  getFpoData() async {
+    return await FirebaseFirestore.instance
+        .collection('fpos')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .get()
+        .then((snapshot) {
+      snapshot.data()!['regNum'];
+    });
+  }
+
   getRelationship() => (gender == "Female" && maritalStatus == "Married")
       ? "Husband name"
       : "Father name";
 
   @override
   Widget build(BuildContext context) {
-    //getDataFromFirebase();
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
@@ -53,7 +71,7 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             onPressed: () {
-              print(const GetMembersInfo());
+              // Edit Screen
             },
           ),
         ],
@@ -86,24 +104,43 @@ class _MemberDetailsScreenState extends State<MemberDetailsScreen> {
                 physics: BouncingScrollPhysics(),
                 children: [
                   const SizedBox(height: 8),
-                  Center(
-                    child: Container(
-                      width: 130,
-                      height: 130,
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: accentColor,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(100),
-                        child: Image.network(
-                          docSnapshot['memImgUrl'],
-                          fit: BoxFit.fill,
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 130,
+                        height: 130,
+                        padding: EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: accentColor,
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(100),
+                          child: Image.network(
+                            docSnapshot['memImgUrl'],
+                            fit: BoxFit.fill,
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          GetFpoData(
+                            fieldName: 'regNum',
+                            textStyle: memUidTextStyle,
+                          ),
+                          Text(
+                            "/${docSnapshot['memId']}",
+                            style: memUidTextStyle,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 8),
                   ListTile(
                     dense: true,
                     leading: Text("Full name", style: membersTitle),

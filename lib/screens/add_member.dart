@@ -9,9 +9,16 @@ class AddMember extends StatefulWidget {
 }
 
 class _AddMemberState extends State<AddMember> {
+  final CollectionReference _membersRef = FirebaseFirestore.instance
+      .collection("fpos")
+      .doc(FirebaseAuth.instance.currentUser!.uid)
+      .collection("members");
+
+  var dashboardScreen = DashboardScreen();
   final _addMemberFormKey = GlobalKey<FormState>();
   File? _imageFile;
   String? _memImgUrl;
+  int _memId = 0;
   final _fullNameController = TextEditingController();
   final _surnameController = TextEditingController();
   String? _gender;
@@ -21,17 +28,24 @@ class _AddMemberState extends State<AddMember> {
   final _mobileNumberController = TextEditingController();
   final _dobController = TextEditingController();
   final _landHoldingController = TextEditingController();
-  String? _country = "";
-  String? _state = "";
-  String? _district = "";
-  String? _mandal = "";
-  String? _revenueVillage = "";
-  String? _habitation = "";
+  String? _country;
+  String? _state;
+  String? _district;
+  String? _mandal;
+  String? _revenueVillage;
+  String? _habitation;
   final _joiningDateController = TextEditingController();
   final _membershipController = TextEditingController();
   final _shareCapitalController = TextEditingController();
 
   bool _registerFormLoading = false;
+
+  Future getMembersCount() async {
+    QuerySnapshot memSnap = await _membersRef.get();
+    setState(() {
+      _memId = memSnap.size;
+    });
+  }
 
   final maritalStatusTitle = [
     "S/o",
@@ -54,7 +68,7 @@ class _AddMemberState extends State<AddMember> {
     return "S/o";
   }
 
-  final List<String> _countries = [];
+  List<String> _countries = [];
 
   countryDependentDropdown() {
     countries.forEach((key, value) {
@@ -70,7 +84,6 @@ class _AddMemberState extends State<AddMember> {
         _states.add(key);
       }
     });
-
     _state = _states[0];
   }
 
@@ -189,12 +202,7 @@ class _AddMemberState extends State<AddMember> {
     }
 
     try {
-      final document = await FirebaseFirestore.instance
-          .collection('fpos')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection("members")
-          .doc();
-
+      final document = await _membersRef.doc();
       final uid = document.id;
       final memberImgRef = await FirebaseStorage.instance
           .ref()
@@ -202,13 +210,10 @@ class _AddMemberState extends State<AddMember> {
           .child("$uid.jpg");
       await memberImgRef.putFile(_imageFile!);
       _memImgUrl = await memberImgRef.getDownloadURL();
-      await FirebaseFirestore.instance
-          .collection('fpos')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection("members")
-          .doc(uid)
-          .set({
-        'memberId': uid,
+
+      await _membersRef.doc(uid).set({
+        'memId': ++_memId,
+        'memberUid': uid,
         'memImgUrl': _memImgUrl,
         'fullName': _fullNameController.text.trim(),
         'surname': _surnameController.text.trim(),
@@ -235,15 +240,11 @@ class _AddMemberState extends State<AddMember> {
           content: Text("Member added successfully"),
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      }).catchError((error) {
-        showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text("You are not able to create account due to $error"),
-            );
-          },
+      }).catchError((error) async {
+        final snackBar = await SnackBar(
+          content: Text("Member not added: $error"),
         );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
       });
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
@@ -271,16 +272,13 @@ class _AddMemberState extends State<AddMember> {
         _registerFormLoading = false;
       });
     } else {
-      const AlertDialog(
-        title: Text("Alert"),
-        content: Text("Your account not created."),
-      );
       Navigator.canPop(context) ? Navigator.pop(context) : null;
     }
   }
 
   @override
   void initState() {
+    getMembersCount();
     countryDependentDropdown();
     super.initState();
   }
@@ -340,16 +338,16 @@ class _AddMemberState extends State<AddMember> {
                         children: [
                           _imageFile == null
                               ? const Icon(
-                            Icons.add_a_photo_outlined,
-                            color: secondaryColor,
-                            size: 40,
-                          )
+                                  Icons.add_a_photo_outlined,
+                                  color: secondaryColor,
+                                  size: 40,
+                                )
                               : Expanded(
-                            child: Image.file(
-                              _imageFile!,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                                  child: Image.file(
+                                    _imageFile!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
                         ],
                       ),
                     ),
@@ -372,7 +370,7 @@ class _AddMemberState extends State<AddMember> {
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child:
-                                  Icon(Icons.camera, color: secondaryColor),
+                                      Icon(Icons.camera, color: secondaryColor),
                                 ),
                                 Text("Camera", style: regularDarkText)
                               ],
@@ -387,7 +385,7 @@ class _AddMemberState extends State<AddMember> {
                                 Padding(
                                   padding: EdgeInsets.all(8.0),
                                   child:
-                                  Icon(Icons.image, color: secondaryColor),
+                                      Icon(Icons.image, color: secondaryColor),
                                 ),
                                 Text("Gallery", style: regularDarkText)
                               ],
@@ -417,7 +415,7 @@ class _AddMemberState extends State<AddMember> {
               textInputAction: TextInputAction.next,
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -437,7 +435,7 @@ class _AddMemberState extends State<AddMember> {
               textCapitalization: TextCapitalization.none,
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -537,7 +535,7 @@ class _AddMemberState extends State<AddMember> {
               textCapitalization: TextCapitalization.none,
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -601,9 +599,9 @@ class _AddMemberState extends State<AddMember> {
                 FocusScope.of(context).unfocus();
                 DateTime? pickedDate = await showDatePicker(
                   context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1960),
-                  lastDate: DateTime(2100),
+                  initialDate: DateTime(2004),
+                  firstDate: DateTime(1962),
+                  lastDate: DateTime(2004),
                 );
                 if (pickedDate != null) {
                   setState(() {
@@ -614,7 +612,7 @@ class _AddMemberState extends State<AddMember> {
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
+                        !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
                     ? "Please select your date of birth"
                     : null;
               },
@@ -636,7 +634,7 @@ class _AddMemberState extends State<AddMember> {
               counterText: "",
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[1-9]\d*(\.\d+)?$').hasMatch(value))
+                        !RegExp(r'^[1-9]\d*(\.\d+)?$').hasMatch(value))
                     ? "Please enter valid aadhar number"
                     : null;
               },
@@ -650,10 +648,7 @@ class _AddMemberState extends State<AddMember> {
               fillColor: fieldBackgroundColor,
               keyboardType: TextInputType.name,
               textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery
-                  .of(context)
-                  .size
-                  .width / 1.065,
+              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
@@ -664,7 +659,7 @@ class _AddMemberState extends State<AddMember> {
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -678,10 +673,7 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               textInputAction: TextInputAction.next,
               fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery
-                  .of(context)
-                  .size
-                  .width / 1.065,
+              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
@@ -692,7 +684,7 @@ class _AddMemberState extends State<AddMember> {
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -706,21 +698,18 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               fillColor: fieldBackgroundColor,
               textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery
-                  .of(context)
-                  .size
-                  .width / 1.065,
+              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
                   _mandals = [];
                   mandalDependentDropdown(onSelected);
-                  _state = onSelected;
+                  _district = onSelected;
                 });
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -734,10 +723,7 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               textInputAction: TextInputAction.next,
               fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery
-                  .of(context)
-                  .size
-                  .width / 1.065,
+              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
@@ -748,7 +734,7 @@ class _AddMemberState extends State<AddMember> {
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -762,10 +748,7 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               fillColor: fieldBackgroundColor,
               textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery
-                  .of(context)
-                  .size
-                  .width / 1.065,
+              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
@@ -776,7 +759,7 @@ class _AddMemberState extends State<AddMember> {
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -790,10 +773,7 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.name,
               textInputAction: TextInputAction.next,
               fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery
-                  .of(context)
-                  .size
-                  .width / 1.065,
+              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onSelected: (onSelected) {
                 setState(() {
@@ -802,7 +782,7 @@ class _AddMemberState extends State<AddMember> {
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                        !RegExp(r'^[a-z A-Z.]+$').hasMatch(value))
                     ? "Please enter valid text"
                     : null;
               },
@@ -837,7 +817,7 @@ class _AddMemberState extends State<AddMember> {
               },
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
+                        !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
                     ? "Please select your joining date"
                     : null;
               },
@@ -875,14 +855,13 @@ class _AddMemberState extends State<AddMember> {
               keyboardType: TextInputType.number,
               fillColor: fieldBackgroundColor,
               textCapitalization: TextCapitalization.none,
-              textInputAction: TextInputAction.next,
+              textInputAction: TextInputAction.done,
               maxLength: 4,
               counterText: "",
               validator: (String? value) {
                 return (value!.isEmpty ||
-                    !RegExp(
-                        r'^([0]|10[0]|20[0]|30[0]|40[0]|50[0]|60[0]|70[0]|80[0]|90[0]|1000)$')
-                        .hasMatch(value))
+                        !RegExp(r'^([0]|10[0]|20[0]|30[0]|40[0]|50[0]|60[0]|70[0]|80[0]|90[0]|1000)$')
+                            .hasMatch(value))
                     ? "Share capital is between 100 to 1000"
                     : null;
               },

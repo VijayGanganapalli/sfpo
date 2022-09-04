@@ -73,3 +73,9 @@ const membersText = TextStyle(
   fontWeight: FontWeight.w100,
   //color: primaryColor,
 );
+
+const memUidTextStyle = TextStyle(
+  fontWeight: FontWeight.w900,
+  fontSize: 16,
+  //color: secondaryColor,
+);

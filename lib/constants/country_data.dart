@@ -824,4 +824,6 @@ var habitations = {
   "Madigapalle": "Kurnoothala",
   "Malapalli ": "Kurnoothala",
   "Siddakavandlapalle": "Kurnoothala",
+
+  "Chenikkayalapalli": "Chitlur",
 };

@@ -37,8 +37,11 @@ class _MembersScreenState extends State<MembersScreen> {
         height: MediaQuery.of(context).size.height,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: StreamBuilder<QuerySnapshot>(
-          stream: Global.membersRef
-              .orderBy("fullName", descending: false)
+          stream: FirebaseFirestore.instance
+              .collection('fpos')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .collection('members')
+              .orderBy("memId", descending: true)
               .snapshots(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {

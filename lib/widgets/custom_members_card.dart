@@ -90,8 +90,8 @@ class CustomMembersCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("$membership"),
-                    Text("$shareCapital"),
+                    Text("M: $membership"),
+                    Text("SC: $shareCapital"),
                   ],
                 ),
               ),

@@ -20,7 +20,7 @@ class GetFpoLogo extends StatelessWidget {
             child: CircularProgressIndicator(),
           );
         }
-        if (snapshot.connectionState == ConnectionState.active) {
+        if (snapshot.hasData) {
           Map<String, dynamic> data =
               snapshot.data!.data() as Map<String, dynamic>;
           return Container(
@@ -30,7 +30,6 @@ class GetFpoLogo extends StatelessWidget {
               borderRadius: BorderRadius.circular(100),
             ),
             child: ClipRRect(
-
               borderRadius: BorderRadius.circular(100),
               child: Image.network(data['logoUrl'], fit: BoxFit.fill),
             ),
