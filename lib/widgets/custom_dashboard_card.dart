@@ -25,7 +25,10 @@ class CustomDashboardCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
           child: Column(
             children: [
-              Text(title, style: boldDashboardTitleText),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(title, style: boldDashboardTitleText),
+              ),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Column(
