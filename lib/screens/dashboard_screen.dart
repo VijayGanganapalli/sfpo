@@ -33,54 +33,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     getMemData();
     return Scaffold(
-        backgroundColor: backgroundColor,
-        drawer: const CustomDrawer(),
-        appBar: AppBar(
-          title: const Text(
-            "Dashboard",
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              icon: Badge(
-                badgeContent: const Text("0"),
-                child: const Icon(Icons.notifications_none),
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NotificationsScreen(),
-                  ),
-                );
-              },
+      backgroundColor: backgroundColor,
+      drawer: const CustomDrawer(),
+      body: CustomScrollView(
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          // appbar
+          SliverAppBar.medium(
+            stretch: true,
+            title: const Text(
+              "Dashboard",
+              style: TextStyle(color: accentColor),
             ),
-          ],
-        ),
-        body: Container(
-          height: MediaQuery.of(context).size.height,
-          padding: const EdgeInsets.all(12),
-          child: ListView(
-            children: [
-              CustomDashboardCard(
-                title: "Members",
-                subTitle: "Total members enrolled\n"
-                    "Male members enrolled\n"
-                    "Female members enrolled",
-                subTitleValue: ":  $memCount\n"
-                    ":  $maleCount\n"
-                    ":  $femaleCount",
-                onTap: () {
+            actions: [
+              IconButton(
+                color: accentColor,
+                icon: Badge(
+                  badgeContent: const Text("0"),
+                  child: const Icon(Icons.notifications_none),
+                ),
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const MembersScreen(),
+                      builder: (context) => const NotificationsScreen(),
                     ),
                   );
                 },
               ),
             ],
           ),
-        ));
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  CustomDashboardCard(
+                    title: "Members",
+                    subTitle: "Total members enrolled\n"
+                        "Male members enrolled\n"
+                        "Female members enrolled",
+                    subTitleValue: ":  $memCount\n"
+                        ":  $maleCount\n"
+                        ":  $femaleCount",
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MembersScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
