@@ -23,11 +23,17 @@ class MyApp extends StatelessWidget {
         statusBarColor: Colors.transparent,
       ),
     );
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'SFPO',
       theme: ThemeData(
+        appBarTheme: AppBarTheme(
+          backgroundColor: secondaryColor,
+          centerTitle: true,
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+          ),
+        ),
         primarySwatch: Palette.kToDark,
         floatingActionButtonTheme: const FloatingActionButtonThemeData()
             .copyWith(backgroundColor: secondaryColor),
