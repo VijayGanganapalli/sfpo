@@ -12,7 +12,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int maleCount = 0;
   int femaleCount = 0;
 
-  getMemData() async {
+  Future getMemData() async {
     CollectionReference _memRef = await FirebaseFirestore.instance
         .collection('fpos')
         .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -38,7 +38,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       body: CustomScrollView(
         physics: BouncingScrollPhysics(),
         slivers: [
-          // appbar
+          // sliver appbar
           SliverAppBar.medium(
             stretch: true,
             title: const Text(
