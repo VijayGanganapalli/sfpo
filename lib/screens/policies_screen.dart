@@ -1,13 +1,17 @@
-import 'package:flutter/material.dart';
+import 'package:sfpo/constants/packages.dart';
 
 class PoliciesScreen extends StatelessWidget {
   const PoliciesScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("There is no policies"),
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar.medium(
+            title: Text('Policies', style: TextStyle(color: accentColor)),
+          ),
+        ],
       ),
     );
   }
