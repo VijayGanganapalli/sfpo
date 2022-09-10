@@ -11,13 +11,6 @@ class GovernanceScreen extends StatelessWidget {
         slivers: [
           SliverAppBar.medium(
             title: Text('Governance', style: TextStyle(color: accentColor)),
-            actions: [
-              IconButton(
-                color: accentColor,
-                icon: Icon(Icons.more_vert),
-                onPressed: () {},
-              ),
-            ],
           ),
         ],
       ),

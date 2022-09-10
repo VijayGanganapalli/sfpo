@@ -11,13 +11,6 @@ class EmployeesScreen extends StatelessWidget {
         slivers: [
           SliverAppBar.medium(
             title: Text('Employees', style: TextStyle(color: accentColor)),
-            actions: [
-              IconButton(
-                color: accentColor,
-                icon: Icon(Icons.more_vert),
-                onPressed: () {},
-              ),
-            ],
           ),
         ],
       ),
