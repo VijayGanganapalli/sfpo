@@ -36,7 +36,7 @@ class CustomMembersCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+        padding: EdgeInsets.only(top: 8, bottom: 8),
         margin: const EdgeInsets.symmetric(
           vertical: 4,
         ),
@@ -44,16 +44,14 @@ class CustomMembersCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           color: accentColor,
         ),
-        height: 100,
-        width: 50,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.only(right: 8.0),
+                padding: EdgeInsets.only(right: 8),
                 child: CircleAvatar(
                   backgroundColor: avatarBackgroundColor,
                   radius: 30.0,
