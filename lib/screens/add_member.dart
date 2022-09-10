@@ -302,584 +302,597 @@ class _AddMemberState extends State<AddMember> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        title: const Text("Add member"),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-      body: Form(
-        key: _addMemberFormKey,
-        child: ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(12),
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          children: [
-            GestureDetector(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Center(
-                  child: Container(
-                    width: 130,
-                    height: 130,
-                    padding: EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: accentColor,
-                      borderRadius: BorderRadius.circular(100),
+      body: CustomScrollView(
+        shrinkWrap: true,
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          SliverAppBar.medium(
+            title: Text('Add Member', style: TextStyle(color: accentColor)),
+          ),
+          SliverToBoxAdapter(
+            child: Form(
+              key: _addMemberFormKey,
+              child: ListView(
+                shrinkWrap: true,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.all(12),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                children: [
+                  GestureDetector(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Center(
+                        child: Container(
+                          width: 130,
+                          height: 130,
+                          padding: EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: accentColor,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(100),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _imageFile == null
+                                    ? const Icon(
+                                        Icons.add_a_photo_outlined,
+                                        color: secondaryColor,
+                                        size: 40,
+                                      )
+                                    : Expanded(
+                                        child: Image.file(
+                                          _imageFile!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _imageFile == null
-                              ? const Icon(
-                                  Icons.add_a_photo_outlined,
-                                  color: secondaryColor,
-                                  size: 40,
-                                )
-                              : Expanded(
-                                  child: Image.file(
-                                    _imageFile!,
-                                    fit: BoxFit.cover,
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: const Text("Please choose an option",
+                                style: regularHeading),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                InkWell(
+                                  child: Row(
+                                    children: const [
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Icon(Icons.camera,
+                                            color: secondaryColor),
+                                      ),
+                                      Text("Camera", style: regularDarkText)
+                                    ],
                                   ),
+                                  onTap: () {
+                                    _getFromCamera();
+                                  },
                                 ),
-                        ],
-                      ),
-                    ),
+                                InkWell(
+                                  child: Row(
+                                    children: const [
+                                      Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Icon(Icons.image,
+                                            color: secondaryColor),
+                                      ),
+                                      Text("Gallery", style: regularDarkText)
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    _getFromGallery();
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
                   ),
-                ),
-              ),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) {
-                    return AlertDialog(
-                      title: const Text("Please choose an option",
-                          style: regularHeading),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          InkWell(
-                            child: Row(
-                              children: const [
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child:
-                                      Icon(Icons.camera, color: secondaryColor),
-                                ),
-                                Text("Camera", style: regularDarkText)
-                              ],
-                            ),
-                            onTap: () {
-                              _getFromCamera();
-                            },
-                          ),
-                          InkWell(
-                            child: Row(
-                              children: const [
-                                Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child:
-                                      Icon(Icons.image, color: secondaryColor),
-                                ),
-                                Text("Gallery", style: regularDarkText)
-                              ],
-                            ),
-                            onTap: () {
-                              _getFromGallery();
-                            },
-                          ),
-                        ],
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _fullNameController,
+                    title: "Full name",
+                    mandatorySymbol: " *",
+                    hintText: "Enter your full name",
+                    textCapitalization: TextCapitalization.none,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    icon: const Icon(Icons.person),
+                    fillColor: fieldBackgroundColor,
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _surnameController,
+                    title: "Surname",
+                    mandatorySymbol: " *",
+                    hintText: "Enter your surname",
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    icon: const Icon(Icons.person),
+                    fillColor: fieldBackgroundColor,
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.none,
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: const [
+                      Text("Gender"),
+                      Text(" *", style: errorTextStyle),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Radio(
+                        activeColor: primaryColor,
+                        value: "Male",
+                        groupValue: _gender,
+                        onChanged: (value) {
+                          setState(() {
+                            _gender = value.toString();
+                          });
+                        },
                       ),
-                    );
-                  },
-                );
-              },
+                      const Text("Male", style: radioText),
+                      Radio(
+                        activeColor: primaryColor,
+                        value: "Female",
+                        groupValue: _gender,
+                        onChanged: (value) {
+                          setState(() {
+                            _gender = value.toString();
+                          });
+                        },
+                      ),
+                      const Text("Female", style: radioText),
+                      Radio(
+                        activeColor: primaryColor,
+                        value: "Others",
+                        groupValue: _gender,
+                        onChanged: (value) {
+                          setState(() {
+                            _gender = value.toString();
+                          });
+                        },
+                      ),
+                      const Text("Others", style: radioText),
+                    ],
+                  ),
+                  Row(
+                    children: const [
+                      Text("Marital status"),
+                      Text(" *", style: errorTextStyle),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Radio(
+                        activeColor: primaryColor,
+                        value: "Married",
+                        groupValue: _maritalStatus,
+                        onChanged: (value) {
+                          setState(() {
+                            _maritalStatus = value.toString();
+                          });
+                        },
+                      ),
+                      const Text("Married", style: radioText),
+                      Radio(
+                        activeColor: primaryColor,
+                        value: "Unmarried",
+                        groupValue: _maritalStatus,
+                        onChanged: (value) {
+                          setState(() {
+                            _maritalStatus = value.toString();
+                          });
+                        },
+                      ),
+                      const Text("Unmarried", style: radioText),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _fatherOrHusbandNameController,
+                    title: (_gender == "Female" && _maritalStatus == "Married")
+                        ? "Husband name"
+                        : "Father name",
+                    mandatorySymbol: " *",
+                    hintText:
+                        (_gender == "Female" && _maritalStatus == "Married")
+                            ? "Husband name"
+                            : "Father name",
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    icon: const Icon(Icons.person),
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    fillColor: fieldBackgroundColor,
+                    textCapitalization: TextCapitalization.none,
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _aadharController,
+                    title: "Aadhar",
+                    mandatorySymbol: " *",
+                    hintText: "Enter your aadhar number",
+                    fillColor: fieldBackgroundColor,
+                    icon: const Icon(Icons.badge_outlined),
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.next,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    textCapitalization: TextCapitalization.none,
+                    maxLength: 12,
+                    counterText: "",
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[0-9]+$').hasMatch(value))
+                          ? "Please enter valid aadhar number"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _mobileNumberController,
+                    title: "Mobile",
+                    mandatorySymbol: " *",
+                    hintText: "Enter your mobile number",
+                    icon: const Icon(Icons.phone_android),
+                    keyboardType: TextInputType.number,
+                    fillColor: fieldBackgroundColor,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    textCapitalization: TextCapitalization.none,
+                    textInputAction: TextInputAction.next,
+                    maxLength: 10,
+                    counterText: "",
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[0-9]+$').hasMatch(value))
+                          ? "Please enter 10 digit mobile number"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _dobController,
+                    title: "Date of birth",
+                    mandatorySymbol: " *",
+                    icon: const Icon(Icons.calendar_today_outlined),
+                    fillColor: fieldBackgroundColor,
+                    keyboardType: TextInputType.datetime,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.none,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    hintText: "Date of birth",
+                    onTap: () async {
+                      FocusScope.of(context).unfocus();
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime(2004),
+                        firstDate: DateTime(1962),
+                        lastDate: DateTime(2004),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          _dobController.text =
+                              DateFormat('dd-MM-yyyy').format(pickedDate);
+                        });
+                      }
+                    },
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
+                          ? "Please select your date of birth"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _landHoldingController,
+                    title: "Land holding",
+                    mandatorySymbol: " *",
+                    hintText: "Enter your land extent",
+                    icon: const Icon(Icons.area_chart_outlined),
+                    keyboardType: TextInputType.number,
+                    fillColor: fieldBackgroundColor,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.none,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    maxLength: 4,
+                    counterText: "",
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[1-9]\d*(\.\d+)?$').hasMatch(value))
+                          ? "Please enter valid aadhar number"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomAutoCompleteField(
+                    title: "Country",
+                    mandatorySymbol: " *",
+                    itemList: _countries,
+                    hintText: "Select your country",
+                    fillColor: fieldBackgroundColor,
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    dropDownContainerWidth:
+                        MediaQuery.of(context).size.width / 1.065,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onSelected: (onSelected) {
+                      setState(() {
+                        _states = [];
+                        stateDependentDropdown(countries[onSelected]);
+                        _country = onSelected;
+                      });
+                    },
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomAutoCompleteField(
+                    title: "State",
+                    mandatorySymbol: " *",
+                    itemList: _states,
+                    hintText: "Select your state",
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    fillColor: fieldBackgroundColor,
+                    dropDownContainerWidth:
+                        MediaQuery.of(context).size.width / 1.065,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onSelected: (onSelected) {
+                      setState(() {
+                        _districts = [];
+                        districtDependentDropdown(onSelected);
+                        _state = onSelected;
+                      });
+                    },
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomAutoCompleteField(
+                    title: "District",
+                    mandatorySymbol: " *",
+                    itemList: _districts,
+                    hintText: "Select your district",
+                    keyboardType: TextInputType.name,
+                    fillColor: fieldBackgroundColor,
+                    textInputAction: TextInputAction.next,
+                    dropDownContainerWidth:
+                        MediaQuery.of(context).size.width / 1.065,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onSelected: (onSelected) {
+                      setState(() {
+                        _mandals = [];
+                        mandalDependentDropdown(onSelected);
+                        _district = onSelected;
+                      });
+                    },
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomAutoCompleteField(
+                    title: "Mandal",
+                    mandatorySymbol: " *",
+                    itemList: _mandals,
+                    hintText: "Select your mandal",
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    fillColor: fieldBackgroundColor,
+                    dropDownContainerWidth:
+                        MediaQuery.of(context).size.width / 1.065,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onSelected: (onSelected) {
+                      setState(() {
+                        _revenueVillages = [];
+                        revenueVillagesDependentDropdown(onSelected);
+                        _mandal = onSelected;
+                      });
+                    },
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomAutoCompleteField(
+                    title: "Revenue village",
+                    mandatorySymbol: " *",
+                    itemList: _revenueVillages,
+                    hintText: "Select your revenue village",
+                    keyboardType: TextInputType.name,
+                    fillColor: fieldBackgroundColor,
+                    textInputAction: TextInputAction.next,
+                    dropDownContainerWidth:
+                        MediaQuery.of(context).size.width / 1.065,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onSelected: (onSelected) {
+                      setState(() {
+                        _habitations = [];
+                        habitationDependentDropdown(onSelected);
+                        _revenueVillage = onSelected;
+                      });
+                    },
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomAutoCompleteField(
+                    title: "Habitation",
+                    mandatorySymbol: " *",
+                    itemList: _habitations,
+                    hintText: "Select your habitation",
+                    keyboardType: TextInputType.name,
+                    textInputAction: TextInputAction.next,
+                    fillColor: fieldBackgroundColor,
+                    dropDownContainerWidth:
+                        MediaQuery.of(context).size.width / 1.065,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    onSelected: (onSelected) {
+                      setState(() {
+                        _habitation = onSelected;
+                      });
+                    },
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[a-z A-Z.]+$').hasMatch(value))
+                          ? "Please enter valid text"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _joiningDateController,
+                    title: "Joining date",
+                    mandatorySymbol: " *",
+                    icon: const Icon(Icons.calendar_today_outlined),
+                    keyboardType: TextInputType.datetime,
+                    fillColor: fieldBackgroundColor,
+                    textInputAction: TextInputAction.next,
+                    textCapitalization: TextCapitalization.none,
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    hintText: "Joining date",
+                    onTap: () async {
+                      FocusScope.of(context).unfocus();
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime(2200),
+                      );
+                      if (pickedDate != null) {
+                        setState(() {
+                          _joiningDateController.text =
+                              DateFormat('dd-MM-yyyy').format(pickedDate);
+                        });
+                      }
+                    },
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
+                          ? "Please select your joining date"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _membershipController,
+                    title: "Membership",
+                    mandatorySymbol: " *",
+                    hintText: "Membership",
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    icon: const Icon(Icons.currency_rupee),
+                    keyboardType: TextInputType.number,
+                    fillColor: fieldBackgroundColor,
+                    textCapitalization: TextCapitalization.none,
+                    textInputAction: TextInputAction.next,
+                    maxLength: 3,
+                    counterText: "",
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^(100)$').hasMatch(value))
+                          ? "Membership must be 100"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  CustomFormField(
+                    obscureText: false,
+                    controller: _shareCapitalController,
+                    title: "Share capital",
+                    mandatorySymbol: " *",
+                    hintText: "Share capital",
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                    icon: const Icon(Icons.currency_rupee),
+                    keyboardType: TextInputType.number,
+                    fillColor: fieldBackgroundColor,
+                    textCapitalization: TextCapitalization.none,
+                    textInputAction: TextInputAction.done,
+                    maxLength: 4,
+                    counterText: "",
+                    validator: (String? value) {
+                      return (value!.isEmpty ||
+                              !RegExp(r'^([0]|10[0]|20[0]|30[0]|40[0]|50[0]|60[0]|70[0]|80[0]|90[0]|1000)$')
+                                  .hasMatch(value))
+                          ? "Share capital is between 100 to 1000"
+                          : null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomButton(
+                    buttonText: "Submit",
+                    outlineButton: false,
+                    onPressed: () {
+                      _submitForm();
+                      setState(() {
+                        _registerFormLoading = true;
+                      });
+                    },
+                    isLoading: _registerFormLoading,
+                  ),
+                ],
+              ),
             ),
-            CustomFormField(
-              obscureText: false,
-              controller: _fullNameController,
-              title: "Full name",
-              mandatorySymbol: " *",
-              hintText: "Enter your full name",
-              textCapitalization: TextCapitalization.none,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              icon: const Icon(Icons.person),
-              fillColor: fieldBackgroundColor,
-              keyboardType: TextInputType.name,
-              textInputAction: TextInputAction.next,
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _surnameController,
-              title: "Surname",
-              mandatorySymbol: " *",
-              hintText: "Enter your surname",
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              icon: const Icon(Icons.person),
-              fillColor: fieldBackgroundColor,
-              keyboardType: TextInputType.name,
-              textInputAction: TextInputAction.next,
-              textCapitalization: TextCapitalization.none,
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: const [
-                Text("Gender"),
-                Text(" *", style: errorTextStyle),
-              ],
-            ),
-            Row(
-              children: [
-                Radio(
-                  activeColor: primaryColor,
-                  value: "Male",
-                  groupValue: _gender,
-                  onChanged: (value) {
-                    setState(() {
-                      _gender = value.toString();
-                    });
-                  },
-                ),
-                const Text("Male", style: radioText),
-                Radio(
-                  activeColor: primaryColor,
-                  value: "Female",
-                  groupValue: _gender,
-                  onChanged: (value) {
-                    setState(() {
-                      _gender = value.toString();
-                    });
-                  },
-                ),
-                const Text("Female", style: radioText),
-                Radio(
-                  activeColor: primaryColor,
-                  value: "Others",
-                  groupValue: _gender,
-                  onChanged: (value) {
-                    setState(() {
-                      _gender = value.toString();
-                    });
-                  },
-                ),
-                const Text("Others", style: radioText),
-              ],
-            ),
-            Row(
-              children: const [
-                Text("Marital status"),
-                Text(" *", style: errorTextStyle),
-              ],
-            ),
-            Row(
-              children: [
-                Radio(
-                  activeColor: primaryColor,
-                  value: "Married",
-                  groupValue: _maritalStatus,
-                  onChanged: (value) {
-                    setState(() {
-                      _maritalStatus = value.toString();
-                    });
-                  },
-                ),
-                const Text("Married", style: radioText),
-                Radio(
-                  activeColor: primaryColor,
-                  value: "Unmarried",
-                  groupValue: _maritalStatus,
-                  onChanged: (value) {
-                    setState(() {
-                      _maritalStatus = value.toString();
-                    });
-                  },
-                ),
-                const Text("Unmarried", style: radioText),
-              ],
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _fatherOrHusbandNameController,
-              title: (_gender == "Female" && _maritalStatus == "Married")
-                  ? "Husband name"
-                  : "Father name",
-              mandatorySymbol: " *",
-              hintText: (_gender == "Female" && _maritalStatus == "Married")
-                  ? "Husband name"
-                  : "Father name",
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              icon: const Icon(Icons.person),
-              keyboardType: TextInputType.name,
-              textInputAction: TextInputAction.next,
-              fillColor: fieldBackgroundColor,
-              textCapitalization: TextCapitalization.none,
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _aadharController,
-              title: "Aadhar",
-              mandatorySymbol: " *",
-              hintText: "Enter your aadhar number",
-              fillColor: fieldBackgroundColor,
-              icon: const Icon(Icons.badge_outlined),
-              keyboardType: TextInputType.number,
-              textInputAction: TextInputAction.next,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              textCapitalization: TextCapitalization.none,
-              maxLength: 12,
-              counterText: "",
-              validator: (String? value) {
-                return (value!.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(value))
-                    ? "Please enter valid aadhar number"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _mobileNumberController,
-              title: "Mobile",
-              mandatorySymbol: " *",
-              hintText: "Enter your mobile number",
-              icon: const Icon(Icons.phone_android),
-              keyboardType: TextInputType.number,
-              fillColor: fieldBackgroundColor,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              textCapitalization: TextCapitalization.none,
-              textInputAction: TextInputAction.next,
-              maxLength: 10,
-              counterText: "",
-              validator: (String? value) {
-                return (value!.isEmpty || !RegExp(r'^[0-9]+$').hasMatch(value))
-                    ? "Please enter 10 digit mobile number"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _dobController,
-              title: "Date of birth",
-              mandatorySymbol: " *",
-              icon: const Icon(Icons.calendar_today_outlined),
-              fillColor: fieldBackgroundColor,
-              keyboardType: TextInputType.datetime,
-              textInputAction: TextInputAction.next,
-              textCapitalization: TextCapitalization.none,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              hintText: "Date of birth",
-              onTap: () async {
-                FocusScope.of(context).unfocus();
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime(2004),
-                  firstDate: DateTime(1962),
-                  lastDate: DateTime(2004),
-                );
-                if (pickedDate != null) {
-                  setState(() {
-                    _dobController.text =
-                        DateFormat('dd-MM-yyyy').format(pickedDate);
-                  });
-                }
-              },
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
-                    ? "Please select your date of birth"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _landHoldingController,
-              title: "Land holding",
-              mandatorySymbol: " *",
-              hintText: "Enter your land extent",
-              icon: const Icon(Icons.area_chart_outlined),
-              keyboardType: TextInputType.number,
-              fillColor: fieldBackgroundColor,
-              textInputAction: TextInputAction.next,
-              textCapitalization: TextCapitalization.none,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              maxLength: 4,
-              counterText: "",
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[1-9]\d*(\.\d+)?$').hasMatch(value))
-                    ? "Please enter valid aadhar number"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomAutoCompleteField(
-              title: "Country",
-              mandatorySymbol: " *",
-              itemList: _countries,
-              hintText: "Select your country",
-              fillColor: fieldBackgroundColor,
-              keyboardType: TextInputType.name,
-              textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onSelected: (onSelected) {
-                setState(() {
-                  _states = [];
-                  stateDependentDropdown(countries[onSelected]);
-                  _country = onSelected;
-                });
-              },
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomAutoCompleteField(
-              title: "State",
-              mandatorySymbol: " *",
-              itemList: _states,
-              hintText: "Select your state",
-              keyboardType: TextInputType.name,
-              textInputAction: TextInputAction.next,
-              fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onSelected: (onSelected) {
-                setState(() {
-                  _districts = [];
-                  districtDependentDropdown(onSelected);
-                  _state = onSelected;
-                });
-              },
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomAutoCompleteField(
-              title: "District",
-              mandatorySymbol: " *",
-              itemList: _districts,
-              hintText: "Select your district",
-              keyboardType: TextInputType.name,
-              fillColor: fieldBackgroundColor,
-              textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onSelected: (onSelected) {
-                setState(() {
-                  _mandals = [];
-                  mandalDependentDropdown(onSelected);
-                  _district = onSelected;
-                });
-              },
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomAutoCompleteField(
-              title: "Mandal",
-              mandatorySymbol: " *",
-              itemList: _mandals,
-              hintText: "Select your mandal",
-              keyboardType: TextInputType.name,
-              textInputAction: TextInputAction.next,
-              fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onSelected: (onSelected) {
-                setState(() {
-                  _revenueVillages = [];
-                  revenueVillagesDependentDropdown(onSelected);
-                  _mandal = onSelected;
-                });
-              },
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomAutoCompleteField(
-              title: "Revenue village",
-              mandatorySymbol: " *",
-              itemList: _revenueVillages,
-              hintText: "Select your revenue village",
-              keyboardType: TextInputType.name,
-              fillColor: fieldBackgroundColor,
-              textInputAction: TextInputAction.next,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onSelected: (onSelected) {
-                setState(() {
-                  _habitations = [];
-                  habitationDependentDropdown(onSelected);
-                  _revenueVillage = onSelected;
-                });
-              },
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomAutoCompleteField(
-              title: "Habitation",
-              mandatorySymbol: " *",
-              itemList: _habitations,
-              hintText: "Select your habitation",
-              keyboardType: TextInputType.name,
-              textInputAction: TextInputAction.next,
-              fillColor: fieldBackgroundColor,
-              dropDownContainerWidth: MediaQuery.of(context).size.width / 1.065,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onSelected: (onSelected) {
-                setState(() {
-                  _habitation = onSelected;
-                });
-              },
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[a-z A-Z.]+$').hasMatch(value))
-                    ? "Please enter valid text"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _joiningDateController,
-              title: "Joining date",
-              mandatorySymbol: " *",
-              icon: const Icon(Icons.calendar_today_outlined),
-              keyboardType: TextInputType.datetime,
-              fillColor: fieldBackgroundColor,
-              textInputAction: TextInputAction.next,
-              textCapitalization: TextCapitalization.none,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              hintText: "Joining date",
-              onTap: () async {
-                FocusScope.of(context).unfocus();
-                DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime(2200),
-                );
-                if (pickedDate != null) {
-                  setState(() {
-                    _joiningDateController.text =
-                        DateFormat('dd-MM-yyyy').format(pickedDate);
-                  });
-                }
-              },
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^[0-9 -/.]+$').hasMatch(value))
-                    ? "Please select your joining date"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _membershipController,
-              title: "Membership",
-              mandatorySymbol: " *",
-              hintText: "Membership",
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              icon: const Icon(Icons.currency_rupee),
-              keyboardType: TextInputType.number,
-              fillColor: fieldBackgroundColor,
-              textCapitalization: TextCapitalization.none,
-              textInputAction: TextInputAction.next,
-              maxLength: 3,
-              counterText: "",
-              validator: (String? value) {
-                return (value!.isEmpty || !RegExp(r'^(100)$').hasMatch(value))
-                    ? "Membership must be 100"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 8),
-            CustomFormField(
-              obscureText: false,
-              controller: _shareCapitalController,
-              title: "Share capital",
-              mandatorySymbol: " *",
-              hintText: "Share capital",
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              icon: const Icon(Icons.currency_rupee),
-              keyboardType: TextInputType.number,
-              fillColor: fieldBackgroundColor,
-              textCapitalization: TextCapitalization.none,
-              textInputAction: TextInputAction.done,
-              maxLength: 4,
-              counterText: "",
-              validator: (String? value) {
-                return (value!.isEmpty ||
-                        !RegExp(r'^([0]|10[0]|20[0]|30[0]|40[0]|50[0]|60[0]|70[0]|80[0]|90[0]|1000)$')
-                            .hasMatch(value))
-                    ? "Share capital is between 100 to 1000"
-                    : null;
-              },
-            ),
-            const SizedBox(height: 16),
-            CustomButton(
-              buttonText: "Submit",
-              outlineButton: false,
-              onPressed: () {
-                _submitForm();
-                setState(() {
-                  _registerFormLoading = true;
-                });
-              },
-              isLoading: _registerFormLoading,
-            ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
