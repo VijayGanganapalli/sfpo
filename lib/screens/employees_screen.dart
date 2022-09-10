@@ -1,13 +1,25 @@
-import 'package:flutter/material.dart';
+import 'package:sfpo/constants/packages.dart';
 
 class EmployeesScreen extends StatelessWidget {
   const EmployeesScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Text("There is no employees"),
+    return Scaffold(
+      body: CustomScrollView(
+        physics: BouncingScrollPhysics(),
+        slivers: [
+          SliverAppBar.medium(
+            title: Text('Employees', style: TextStyle(color: accentColor)),
+            actions: [
+              IconButton(
+                color: accentColor,
+                icon: Icon(Icons.more_vert),
+                onPressed: () {},
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
